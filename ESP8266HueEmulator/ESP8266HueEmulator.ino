@@ -124,6 +124,8 @@ void setup() {
   delay(120); // Apparently needed to make the first few pixels animate correctly
   Serial.begin(115200);
 
+  Serial.print("MAC Address: ");
+  Serial.println(WiFi.macAddress().c_str());
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   infoLight(white);
