@@ -4,13 +4,12 @@ enum HueColorType {
   TYPE_HUE_SAT, TYPE_CT, TYPE_XY
 };
 
-enum HueAlert {
-  ALERT_NONE, ALERT_SELECT, ALERT_LSELECT
-};
+#define ALERT_NONE "none"
+#define ALERT_SELECT "select"
+#define ALERT_LSELECT "lselect"
 
-enum HueEffect {
-  EFFECT_NONE, EFFECT_COLORLOOP
-};
+#define EFFECT_NONE "none"
+#define EFFECT_COLORLOOP "colorloop"
 
 enum class HueBulbType {
   EXTENDED_COLOR_LIGHT, DIMMABLE_LIGHT
@@ -23,8 +22,8 @@ struct HueLightInfo {
   HueColorType type = TYPE_HUE_SAT;
   HueBulbType bulbType = HueBulbType::EXTENDED_COLOR_LIGHT;
   int hue = 0, saturation = 0;
-  HueAlert alert = ALERT_NONE;
-  HueEffect effect = EFFECT_NONE;
+  String alert = ALERT_NONE;
+  String effect = EFFECT_NONE;
   unsigned int transitionTime = 800; // by default there is a transition time to the new state of 400 milliseconds
 };
 

@@ -1215,25 +1215,13 @@ bool parseHueLightInfo(HueLightInfo currentInfo, aJsonObject *parsedRoot, HueLig
   // pull effect
   aJsonObject* effectState = aJson.getObjectItem(parsedRoot, "effect");
   if (effectState) {
-    const char *effect = effectState->valuestring;
-    if (!strcmp(effect, "colorloop")) {
-      newInfo->effect = EFFECT_COLORLOOP;
-    } else {
-      newInfo->effect = EFFECT_NONE;
-    }
+    newInfo->effect = effectState->valuestring;
   }
 
   // pull alert
   aJsonObject* alertState = aJson.getObjectItem(parsedRoot, "alert");
   if (alertState) {
-    const char *alert = alertState->valuestring;
-    if (!strcmp(alert, "select")) {
-      newInfo->alert = ALERT_SELECT;
-    } else if (!strcmp(alert, "lselect")) {
-      newInfo->alert = ALERT_LSELECT;
-    } else {
-      newInfo->alert = ALERT_NONE;
-    }
+    newInfo->alert = alertState->valuestring;
   }
 
   // pull transitiontime
@@ -1293,8 +1281,8 @@ void addSingleLightJson(aJsonObject* root, int numberOfTheLight, LightHandler *l
   double numbers[2] = {0.0, 0.0};
   aJson.addItemToObject(state, "xy", aJson.createFloatArray(numbers, 2)); // xy mode: CIE 1931 color co-ordinates
   aJson.addNumberToObject(state, "ct", 500); // ct mode: color temp (expressed in mireds range 154-500)
-  aJson.addStringToObject(state, "alert", "none"); // 'select' flash the lamp once, 'lselect' repeat flash for 30s
-  aJson.addStringToObject(state, "effect", info.effect == EFFECT_COLORLOOP ? "colorloop" : "none");
+  aJson.addStringToObject(state, "alert", info.alert.c_str()); // 'select' flash the lamp once, 'lselect' repeat flash for 30s
+  aJson.addStringToObject(state, "effect", info.effect.c_str());
   aJson.addStringToObject(state, "colormode", "hs"); // the current color mode
   aJson.addBooleanToObject(state, "reachable", true); // lamp can be seen by the hub  aJson.addStringToObject(root, "type", "Extended color light"); // type of lamp (all "Extended colour light" for now)
   
