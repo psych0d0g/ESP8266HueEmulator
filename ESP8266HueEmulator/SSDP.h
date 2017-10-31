@@ -71,6 +71,7 @@ class SSDPClass{
     // this callback gets called when a notify comes in
     typedef std::function<void(SSDPClass *ssdp, IPAddress addr, uint16_t port)> IncomingFunction;
     void setNotifyCallback(IncomingFunction callback) { _notifyCallback = callback; }
+    void setResponseCallback(IncomingFunction callback) { _responseCallback = callback; }
     int readIncomingLine(String *key, String *value);
 
     void schema(WiFiClient client);
@@ -98,6 +99,7 @@ class SSDPClass{
     void setManufacturerURL(const char *url);
     void setHTTPPort(uint16_t port);
     void setTTL(uint8_t ttl);
+    void beginSearch();
 
   protected:
     void _send(ssdp_method_t method);
@@ -135,6 +137,7 @@ class SSDPClass{
     char _modelNumber[SSDP_MODEL_VERSION_SIZE];
     MsgFormatFunction _messageFormatCallback = nullptr;
     IncomingFunction _notifyCallback = nullptr;
+    IncomingFunction _responseCallback = nullptr;
 };
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SSDP)
