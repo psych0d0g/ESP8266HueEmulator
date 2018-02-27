@@ -171,6 +171,7 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);  // Turn the LED off by making the voltage HIGH
 
   LightService.begin();
+  //LightService.setBufferlessResponses(true);
 
   // setup pixels as lights
   for (int i = 0; i < MAX_LIGHT_HANDLERS && i < pixelCount; i++) {

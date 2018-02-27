@@ -9,10 +9,6 @@
 #include <assert.h>
 #include <FS.h>
 
-#if PRINT_BUFFER_LEN < 4096
-#  error aJson print buffer length PRINT_BUFFER_LEN must be increased to at least 4096
-#endif
-
 String macString;
 String bridgeIDString;
 String ipString;
@@ -966,15 +962,96 @@ void LightServiceClass::update() {
   HTTP->handleClient();
 }
 
-void sendJson(aJsonObject *root) {
-  // Take aJsonObject and print it to Serial and to WiFi
-  // From https://github.com/pubnub/msp430f5529/blob/master/msp430f5529.ino
-  char *msgStr = aJson.print(root);
-  aJson.deleteItem(root);
+bool bufferlessResponses = false;
+void LightServiceClass::setBufferlessResponses(bool enabled) {
+  bufferlessResponses = enabled;
+}
+
+#include "Stream.h"
+class WebServerStream : public Stream {
+  public:
+    WebServerStream() {}
+    ~WebServerStream() {}
+    size_t write(uint8_t ch) override {
+      HTTP->client().write(&ch, 1);
+      return 1;
+    }
+    size_t write(const uint8_t *str, size_t size) override {
+      HTTP->client().write(str, size);
+      return 1;
+    }
+    int available(void) override { return 1; }
+    int peek(void) override { return 1; }
+    int read(void) override { return 1; }
+    int availableForWrite(void) { return 1; }
+    void flush(void) override {}
+};
+
+class StringStream : public Stream {
+  public:
+    StringStream(String& buf): buf(buf) {}
+    ~StringStream() {}
+    size_t write(uint8_t ch) override {
+      buf += (char)ch;
+      return 1;
+    }
+    int available(void) override { return 1; }
+    int peek(void) override { return 1; }
+    int read(void) override { return 1; }
+    int availableForWrite(void) { return 1; }
+    void flush(void) override {}
+  private:
+    String &buf;
+};
+
+class CountStream : public Stream {
+  public:
+    CountStream() {}
+    ~CountStream() {}
+    size_t write(uint8_t ch) override {
+      count++;
+      return 1;
+    }
+    int available(void) override { return 1; }
+    int peek(void) override { return 1; }
+    int read(void) override { return 1; }
+    int availableForWrite(void) { return 1; }
+    void flush(void) override {}
+    long count = 0;
+};
+
+WebServerStream *WebStream = new WebServerStream();
+CountStream *CStream = new CountStream();
+aJsonStream serial_stream(&Serial);
+aJsonStream web_stream(WebStream);
+aJsonStream count_stream(CStream);
+void sendJson(aJsonObject *root)
+{
   Serial.println(millis());
-  Serial.println(msgStr);
-  HTTP->send(200, "application/json", msgStr);
-  free(msgStr);
+
+  if (bufferlessResponses) {
+    CStream->count = 0;
+    aJson.print(root, &count_stream);
+    HTTP->setContentLength(CStream->count+1);
+    HTTP->send(200, "application/json", "");
+    aJson.print(root, &web_stream);
+    HTTP->sendContent("\n");
+  } else {
+    CStream->count = 0;
+    aJson.print(root, &count_stream);
+    String outstr;
+    outstr.reserve(CStream->count+1);
+    StringStream *SStream = new StringStream(outstr);
+    aJsonStream string_stream(SStream);
+    aJson.print(root, &string_stream);
+    outstr += '\n';
+    HTTP->send(200, "application/json", outstr);
+  }
+
+  Serial.println(millis());
+  aJson.print(root, &serial_stream);
+  Serial.println();
+  aJson.deleteItem(root);
 }
 
 // ==============================================================================================================

@@ -59,6 +59,7 @@ class LightServiceClass {
       bool setLightsAvailable(int numLights);
       int getLightsAvailable();
       bool setLightHandler(int index, LightHandler *handler);
+      void setBufferlessResponses(bool enabled);
       void begin();
       void begin(ESP8266WebServer *svr);
       void update();
