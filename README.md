@@ -1,9 +1,9 @@
-# ESP8266HueEmulator [![Build Status](https://travis-ci.org/probonopd/ESP8266HueEmulator.svg)](https://travis-ci.org/probonopd/ESP8266HueEmulator)
+# ESP8266HueEmulator 
 This sketch emulates a Philips Hue bridge running on an ESP8266 using the Arduino IDE. Right now this is a proof-of-concept; contributions are highly welcome. Hue client apps can [discover](../../wiki/Discovery) the emulated bridge and begin talking to it using the Hue protocol.
 
 ![phihue_e27_starterset_430x300 jpg](https://cloud.githubusercontent.com/assets/2480569/8511601/e692e61c-231f-11e5-842d-4fedd6f900b4.jpg)
 
-__Optionally__, vou can use a strip of individually addressable WS2812b NeoPixels and attach it to GPIO2. The sketch talks to a strip of NeoPixels connected to GPIO2 (= pin D4 on the WEMOS D1 mini) of the ESP8266 with no additional circuitry. Right now the sketch uses the NeoPixels to tell that it is powered on, connected to the WLAN etc., and can switch on the first 3 NeoPixels using a Hue client (e.g., the iOS app).
+__Optionally__, vou can use a strip of individually addressable 4 PIN LED Strips and attach it to D1 and D2. The sketch talks to a strip of NeoPixels connected to the ESP8266 with no additional circuitry. Right now the sketch uses the NeoPixels to tell that it is powered on, connected to the WLAN etc.
 
 To make this work, the sketch advertises its service with the so-called "Simple Service Discovery Protocol" (SSDP) that is also used as discovery protocol of Universal Plug and Play (UPnP). This sketch uses the ESP8266SSDP library from https://github.com/me-no-dev/Arduino
 
@@ -14,12 +14,10 @@ Please note that currently only the bare minimum to advertise the emulated Hue b
 * I used [Arduino-1.6.11.hourly201608161225.esp497d19d-x86_64.AppImage](https://bintray.com/probono/AppImages/Arduino#files) which conveniently comes with both the Arduino IDE and esp8266/Arduino ready-to-use; otherwise use a recent version of the Arduino IDE and [esp8266/Arduino](https://github.com/esp8266/Arduino) 
 * In the Arduino IDE, Open the Library Manager and search for "NeoPixelBus by Makuna" and install
 * Download https://github.com/interactive-matter/aJson/archive/master.zip and install the library via the Arduino IDE
-* Edit the sketch to contain your WLAN credentials
 * Load the sketch onto your ESP-01 or other ESP8266 device
-* Optionally connect the DATA line of your WS2812b NeoPixels to pin GPIO2 (you do not really need this in order to test communication between the sketch and Hue client apps)
 * Watch the output of the sketch in a serial console
 * Connect to the emulated bridge by using a Hue client app
-* Switch on one of the lights
+* Switch on and off the lights
 * Continue watching the output of the sketch in a serial console
 * Implement more of the protocol
 * Contribute pull requests ;-)
