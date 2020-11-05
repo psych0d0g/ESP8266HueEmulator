@@ -7,6 +7,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <WiFiManager.h>
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include <NeoPixelBus.h>
@@ -17,15 +18,12 @@
 #include "SSDP.h"
 #include <aJSON.h> // Replace avm/pgmspace.h with pgmspace.h there and set #define PRINT_BUFFER_LEN 4096 ################# IMPORTANT
 
-#include "/secrets.h" // Delete this line and populate the following
-//const char* ssid = "********";
-//const char* password = "********";
-
 RgbColor red = RgbColor(COLOR_SATURATION, 0, 0);
 RgbColor green = RgbColor(0, COLOR_SATURATION, 0);
 RgbColor white = RgbColor(COLOR_SATURATION);
 RgbColor black = RgbColor(0);
 
+const char * bridgeName = "Desk Hue";
 // Settings for the NeoPixels
 #define NUM_PIXELS_PER_LIGHT 5 // How many physical LEDs per emulated bulb
 
@@ -35,7 +33,7 @@ const uint8_t DotDataPin = D1;
 //#define pixelPin 2 // Strip is attached to GPIO2 on ESP-01
 NeoPixelBus<DotStarBgrFeature, DotStarMethod> strip(MAX_LIGHT_HANDLERS * NUM_PIXELS_PER_LIGHT, DotClockPin, DotDataPin);
 NeoPixelAnimator animator(MAX_LIGHT_HANDLERS * NUM_PIXELS_PER_LIGHT, NEO_MILLISECONDS); // NeoPixel animation management object
-LightServiceClass LightService("Desk Hue");
+LightServiceClass LightService(bridgeName);
 
 HsbColor getHsb(int hue, int sat, int bri) {
   float H, S, B;
@@ -127,8 +125,9 @@ void setup() {
 
   Serial.print("MAC Address: ");
   Serial.println(WiFi.macAddress().c_str());
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFiManager wifiManager;
+  wifiManager.setConfigPortalTimeout(120);
+  wifiManager.autoConnect(bridgeName);
   infoLight(white);
 
   while (WiFi.status() != WL_CONNECTED) {
