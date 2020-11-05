@@ -130,6 +130,7 @@ _port(80),
 _ttl(SSDP_MULTICAST_TTL),
 _respondToPort(0),
 _pending(false),
+_inCallback(false),
 _delay(0),
 _process_time(0),
 _notify_time(0)
@@ -196,6 +197,10 @@ bool SSDPClass::begin(){
   return true;
 }
 
+void SSDPClass::beginSearch() {
+  _send(SEARCH);
+}
+
 void SSDPClass::_send(ssdp_method_t method){
   char buffer[1460];
   ip_addr_t ip = WiFi.localIP();
@@ -214,6 +219,11 @@ void SSDPClass::_send(ssdp_method_t method){
       _deviceType,
       IP2STR(&ip), _port, _schemaURL
     );
+  }
+
+  if (method == SEARCH) {
+    _respondToAddr = SSDP_MULTICAST_ADDR;
+    _respondToPort = SSDP_PORT;
   }
 
   _server->append(buffer, len);
@@ -317,6 +327,15 @@ int SSDPClass::_getNextToken(String *token, bool break_on_space, bool break_on_c
 	return 0;
 }
 
+int SSDPClass::readIncomingLine(String *key, String *value) {
+    if (!_inCallback) return -1;
+    int res = _getNextToken(key, true, true);
+    if (res < 1) {
+        return res;
+    }
+    return _getNextToken(value, false, false);
+}
+
 void SSDPClass::_bailRead() {
     while (_getNextToken(NULL, true, true) > 0);
     _pending = false;
@@ -329,6 +348,8 @@ void SSDPClass::_parseIncoming() {
 
     typedef enum {START, MAN, ST, MX, UNKNOWN} headers;
     headers header = START;
+    bool notify = false;
+    bool response = false;
 
     String token;
     // get message type
@@ -340,9 +361,9 @@ void SSDPClass::_parseIncoming() {
     
     if (token == "M-SEARCH") {
     } else if (token == "NOTIFY") {
-    	 // incoming notifies are not currently handled
-    	_bailRead();
-    	return;
+        notify = true;
+    } else if (token == "HTTP/1.1") {
+        response = true;
     } else {
         _bailRead();
         return;
@@ -354,7 +375,7 @@ void SSDPClass::_parseIncoming() {
         _bailRead();
         return;
     }
-    if (token != "*") {
+    if (token != "*" && token != "200") {
         _bailRead();
         return;
     }
@@ -362,6 +383,28 @@ void SSDPClass::_parseIncoming() {
     // eat protocol (HTTP/1.1)
     res = _getNextToken(NULL, false, false);
     if (res <= 0) {
+        _bailRead();
+        return;
+    }
+
+    if (notify) {
+        if (_notifyCallback) {
+            _inCallback = true;
+            _notifyCallback(this, _respondToAddr, _respondToPort);
+            _inCallback = false;
+        }
+        // even if the callback was called, exhaust the rest of the data if any exists
+        _bailRead();
+        return;
+    }
+
+    if (response) {
+        if (_responseCallback) {
+            _inCallback = true;
+            _responseCallback(this, _respondToAddr, _respondToPort);
+            _inCallback = false;
+        }
+        // even if the callback was called, exhaust the rest of the data if any exists
         _bailRead();
         return;
     }

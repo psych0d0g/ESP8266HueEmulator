@@ -14,7 +14,6 @@ Please note that currently only the bare minimum to advertise the emulated Hue b
 * I used [Arduino-1.6.11.hourly201608161225.esp497d19d-x86_64.AppImage](https://bintray.com/probono/AppImages/Arduino#files) which conveniently comes with both the Arduino IDE and esp8266/Arduino ready-to-use; otherwise use a recent version of the Arduino IDE and [esp8266/Arduino](https://github.com/esp8266/Arduino) 
 * In the Arduino IDE, Open the Library Manager and search for "NeoPixelBus by Makuna" and install
 * Download https://github.com/interactive-matter/aJson/archive/master.zip and install the library via the Arduino IDE
-* Important: Change `#define PRINT_BUFFER_LEN 256` to `#define PRINT_BUFFER_LEN 4096` in `aJson/aJSON.h`
 * Edit the sketch to contain your WLAN credentials
 * Load the sketch onto your ESP-01 or other ESP8266 device
 * Optionally connect the DATA line of your WS2812b NeoPixels to pin GPIO2 (you do not really need this in order to test communication between the sketch and Hue client apps)
@@ -36,7 +35,6 @@ git clone --branch 2.1.4 https://github.com/Makuna/NeoPixelBus.git
 git clone https://github.com/interactive-matter/aJson.git
 git clone https://github.com/PaulStoffregen/Time.git
 git clone https://github.com/gmag11/NtpClient.git
-sed -i -e 's|#define PRINT_BUFFER_LEN 256|#define PRINT_BUFFER_LEN 4096|g'  aJson/aJSON.h
 cd -
 git clone https://github.com/probonopd/ESP8266HueEmulator.git
 sed -i -e 's|#include "/secrets.h"|//#include "/secrets.h"|g' ESP8266HueEmulator/ESP8266HueEmulator/ESP8266HueEmulator.ino
