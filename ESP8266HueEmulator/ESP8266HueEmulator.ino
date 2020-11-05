@@ -27,13 +27,15 @@ RgbColor white = RgbColor(COLOR_SATURATION);
 RgbColor black = RgbColor(0);
 
 // Settings for the NeoPixels
-#define NUM_PIXELS_PER_LIGHT 10 // How many physical LEDs per emulated bulb
+#define NUM_PIXELS_PER_LIGHT 5 // How many physical LEDs per emulated bulb
 
-#define pixelCount 30
-#define pixelPin 2 // Strip is attached to GPIO2 on ESP-01
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod> strip(MAX_LIGHT_HANDLERS * NUM_PIXELS_PER_LIGHT, pixelPin);
+#define pixelCount 35
+const uint8_t DotClockPin = D2;
+const uint8_t DotDataPin = D1;  
+//#define pixelPin 2 // Strip is attached to GPIO2 on ESP-01
+NeoPixelBus<DotStarBgrFeature, DotStarMethod> strip(MAX_LIGHT_HANDLERS * NUM_PIXELS_PER_LIGHT, DotClockPin, DotDataPin);
 NeoPixelAnimator animator(MAX_LIGHT_HANDLERS * NUM_PIXELS_PER_LIGHT, NEO_MILLISECONDS); // NeoPixel animation management object
-LightServiceClass LightService;
+LightServiceClass LightService("Desk Hue");
 
 HsbColor getHsb(int hue, int sat, int bri) {
   float H, S, B;
@@ -139,7 +141,7 @@ void setup() {
   // ArduinoOTA.setPort(8266);
 
   // Hostname defaults to esp8266-[ChipID]
-  // ArduinoOTA.setHostname("myesp8266");
+  ArduinoOTA.setHostname("huedesk");
 
   // No authentication by default
   // ArduinoOTA.setPassword((const char *)"123");

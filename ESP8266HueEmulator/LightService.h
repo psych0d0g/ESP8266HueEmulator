@@ -50,10 +50,9 @@ class LightHandler {
 #define COLOR_SATURATION 255.0f
 
 class LightServiceClass {
-    const char* _friendlyName;
-
     public:
       LightServiceClass();
+      LightServiceClass(const char* friendlyName);
       LightHandler *getLightHandler(int numberOfTheLight);
       bool setLightsAvailable(int numLights);
       int getLightsAvailable();

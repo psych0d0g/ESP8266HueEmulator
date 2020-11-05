@@ -14,6 +14,7 @@ String bridgeIDString;
 String ipString;
 String netmaskString;
 String gatewayString;
+const char * friendlyName;
 // The username of the client (currently we authorize all clients simulating a pressed button on the bridge)
 String client;
 
@@ -193,7 +194,13 @@ protected:
 
 LightHandler *lightHandlers[MAX_LIGHT_HANDLERS] = {}; // interfaces exposed to the outside world
 
-LightServiceClass::LightServiceClass() { }
+LightServiceClass::LightServiceClass() { 
+   friendlyName = "hue emulator";
+}
+
+LightServiceClass::LightServiceClass(const char* friendlyNameArg) { 
+   friendlyName = friendlyNameArg;
+}
 
 bool LightServiceClass::setLightHandler(int index, LightHandler *handler) {
   if (index >= currentNumLights || index < 0) return false;
@@ -464,7 +471,7 @@ String listFiles(String _template)
 
 void indexPageFn() {
 	String response = "<html><body>"
-	"<h2>Philips HUE ( {ip} )</h2>"
+	"<h2>Philips HUE - {name} ( {ip} )</h2>"
 	"<p>Available lights:</p>"
 	"<ul>{lights}</ul>"
   "<ul>File Cache</ul>"
@@ -488,6 +495,7 @@ void indexPageFn() {
   String groupFiles = listFiles(GROUP_FILE_TEMPLATE);
 	response.replace("{ip}", ipString);
 	response.replace("{lights}", lights);
+  response.replace("{name}", friendlyName);
 	response.replace("{group-files}", groupFiles);	
   response.replace("{scene-files}", sceneFiles);  
 	HTTP->send(200, "text/html", response);
@@ -1359,7 +1367,7 @@ static String format2Digits(int num) {
 
 void addConfigJson(aJsonObject *root)
 {
-  aJson.addStringToObject(root, "name", "hue emulator");
+  aJson.addStringToObject(root, "name", friendlyName);
   aJson.addStringToObject(root, "swversion", "81012917");
   aJson.addStringToObject(root, "bridgeid", bridgeIDString.c_str());
   aJson.addBooleanToObject(root, "portalservices", false);
@@ -1758,4 +1766,3 @@ String methodToString(int method) {
     default: return "unknown";
   }
 }
-
